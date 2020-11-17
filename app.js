@@ -2,8 +2,8 @@ require('dotenv').config();
 const axios = require('axios');
 const moment = require('moment');
 
-let twitchOauthUrl = 'https://id.twitch.tv/oauth2/token';
-let twitchApiUrl = 'https://api.twitch.tv/helix/streams';
+const twitchOauthUrl = 'https://id.twitch.tv/oauth2/token';
+const twitchApiUrl = 'https://api.twitch.tv/helix/streams';
 const clientId = process.env.TWITCH_CLIENT_ID;
 const clientSecret = process.env.TWITCH_CLIENT_SECRET;
 
@@ -13,13 +13,12 @@ let streamCount = 0;
 let cursor;
 
 let getToken = async () => {
-    let paramsUrl = "?client_id=" + clientId + "&client_secret=" + clientSecret + "&grant_type=client_credentials";
+    const paramsUrl = "?client_id=" + clientId + "&client_secret=" + clientSecret + "&grant_type=client_credentials";
     const tokenResponse = await axios.post(twitchOauthUrl + paramsUrl);
     return tokenResponse.data.access_token;
 }
 
-let getStreams = async (cursor) => {
-    let accessToken = await getToken();
+let getStreams = async (accessToken, cursor) => {
     const options = { headers: { 'Authorization': 'Bearer ' + accessToken, 'Client-Id': clientId }};
     let paramsUrl = "?first=100";
     if(cursor){
@@ -41,15 +40,16 @@ let printLog = () => {
 
 (async () => {
     try {
+        let accessToken = await getToken();
         setInterval(async () => {
-            let resp = await getStreams(cursor);
+            let resp = await getStreams(accessToken, cursor);
             cursor = resp.pagination.cursor;
             let streams = resp.data;
             streams.forEach(stream => {
                 let uptime = moment().diff(moment(stream.started_at), 'hours');
                 if(stream.viewer_count < 2 &&  uptime >= 1){
                     console.log("cursor", cursor, stream.user_name, stream.game_name);
-                    streamList.push(stream.id + " " + stream.user_name + " " + stream.game_name + " " + stream.viewer_count + " " + uptime.format());
+                    streamList.push(stream.id + " " + stream.user_name + " " + stream.game_name + " " + stream.viewer_count + " " + uptime + "h");
                 }
             });
             streamCount += streams.length;

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title></title>
+</head>
+<body>
+    <!-- Add a placeholder for the Twitch embed -->
+    <div id="twitch-embed"></div>
+
+    <button style="font-size: 30px;" onclick="next()">Next</button>
+
+    <!-- Load the Twitch embed script -->
+    <script src="https://embed.twitch.tv/embed/v1.js"></script>
+
+    <!-- Create a Twitch.Embed object that will render within the "twitch-embed" root element. -->
+    <script type="text/javascript">
+        let channels = ["lirik", "sacriel", "gotaga"];
+        let i = 0;
+
+        let twitch = new Twitch.Embed("twitch-embed", {            
+            width: 1400,
+            height: 600,
+            channel: channels[i]
+        });
+
+        function next(){
+            i = (i == channels.length - 1) ? 0 : i + 1
+            let channel = channels[i];
+            twitch.setChannel(channel);
+            console.log("next", channel);
+        }
+    </script>
+</body>
+</html>
